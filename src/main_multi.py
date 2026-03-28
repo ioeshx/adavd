@@ -16,6 +16,8 @@ from template import template_dict
 from utils import *
 from einops import rearrange
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 def trans_target(max_idx, original_target):
     max_idx_ = list(set(max_idx))
     transform_target = torch.zeros_like(original_target, dtype=original_target.dtype, device=original_target.device)
@@ -63,7 +65,7 @@ class AttnProcessor():
         return c / (1 + torch.exp(-a * (x - b)))
 
     def cal_ortho_decomp(self, target_value, pro_record, ortho_basis=None, project_matrix=None): 
-
+        device = pro_record.device
         if ortho_basis is None and project_matrix is None:
             tar_record_ = target_value[0].permute(1, 0, 2).reshape(77, -1) # [77, 640]
             pro_record_ = pro_record.permute(1, 0, 2).reshape(77, -1) # [77, 640]
@@ -79,7 +81,7 @@ class AttnProcessor():
             weight[0].fill_(0)
             era_record = weight.unsqueeze(0).unsqueeze(-1) * tar_record_.view((77, 16, -1)).permute(1, 0, 2)
         else:
-            device = pro_record.device
+            
             tar_record_ = rearrange(target_value, 'b h l d -> l b (h d)') # [77, num_concepts, 640]
             pro_record_ = rearrange(pro_record, 'h l d -> l (h d)').unsqueeze(1) # [77, 1, 640]
             dot1 = (ortho_basis * pro_record_).sum(-1)
@@ -269,7 +271,7 @@ def diffusion(unet, scheduler, latents, text_embeddings, total_timesteps, start_
     visualize_map_withstep = {key: {} for key in record_type.strip().split(',')} if record_type is not None else {}
 
     scheduler.set_timesteps(total_timesteps)
-    for timestep in tqdm(scheduler.timesteps[start_timesteps: total_timesteps], desc=desc):
+    for timestep in tqdm(scheduler.timesteps[start_timesteps: total_timesteps], desc=desc, disable=True):
 
         latent_model_input = torch.cat([latents] * 2)
         latent_model_input = scheduler.scale_model_input(latent_model_input, timestep)
@@ -303,7 +305,7 @@ def main():
     parser = argparse.ArgumentParser()
     # Base Config
     parser.add_argument('--save_root', type=str, default='')
-    parser.add_argument('--sd_ckpt', type=str, default="models/stable-diffusion-v1-4")
+    parser.add_argument('--sd_ckpt', type=str, default="CompVis/stable-diffusion-v1-4")
     parser.add_argument('--seed', type=int, default=0)
     # Sampling Config
     parser.add_argument('--mode', type=str, default='original', help='original, retain')
@@ -313,7 +315,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=10, help='The batch size of the sampling process')
     parser.add_argument('--prompts', type=str, default=None)
     # Erasing Config
-    parser.add_argument('--erase_type', type=str, default='', help='instance, style, celebrity, nsfw')
+    parser.add_argument('--erase_type', type=str, default='', help='instance, style, celebrity, nsfw, sex')
     parser.add_argument('--target_concept', type=str, default='')
     parser.add_argument('--contents', type=str, default='erase, retention', help='Benchmark you want to use, I2P or your benchmark')
     args = parser.parse_args()
@@ -331,7 +333,8 @@ def main():
 
     # Sampling process
     if 'erase' in args.contents or 'retention' in args.contents:
-        dataset = AdaDataset(data_path =f'data/{args.erase_type}.csv', guidance_scale=args.guidance_scale)
+        dataset = AdaDataset(data_path =f'data/{args.erase_type}.csv', 
+                             guidance_scale=args.guidance_scale)
     dataloader = DataLoader(dataset, batch_size=bs, drop_last=False)
     target_concepts = [item.strip() for item in args.target_concept.split(', ')]
     
@@ -348,8 +351,8 @@ def main():
 
     for content in args.contents.split(', '):
         for count, data in enumerate(dataloader):
-            if content in ['erase', 'retention'] and content != data['type'][0]:
-                continue
+            # if content in ['erase', 'retention'] and content != data['type'][0]:
+            #     continue
             embedding = get_textencoding(get_token(data['prompt'], tokenizer), text_encoder)
             embedding_sim = torch.cosine_similarity(embedding.unsqueeze(1), target_concept_encoding, dim=-1).sum(-1).max(dim=-1)[-1].tolist()
             trans_target_encodings = trans_target(embedding_sim, copy.deepcopy(target_concept_encoding))
@@ -397,8 +400,10 @@ def main():
                 del unet_retain
             
             save_path = os.path.join(args.save_root, args.erase_type, content)
-            for mode in mode_list: os.makedirs(os.path.join(save_path, mode), exist_ok=True)
-            if len(mode_list) > 1: os.makedirs(os.path.join(save_path, 'combine'), exist_ok=True)
+            for mode in mode_list: 
+                os.makedirs(os.path.join(save_path, mode), exist_ok=True)
+            if len(mode_list) > 1: 
+                os.makedirs(os.path.join(save_path, 'combine'), exist_ok=True)
 
             # Decode and process images
             decoded_imgs = {
@@ -412,11 +417,12 @@ def main():
                 new_img = Image.new('RGB', (sum(widths), max(heights)))
                 for i, img in enumerate(Images): new_img.paste(img, (sum(widths[:i]), 0))
                 return new_img
+            
             for idx in range(len(decoded_imgs[mode_list[0]])):
                 if content == 'nudity':
                     save_filename = f'{data["idx"][idx]}_' + re.sub(r'[^\w\s]', '', data["prompt"][idx]).replace(' ', '_')[:100]+ f"_{int(idx + bs * idx)}.png"
                 elif content in ['erase', 'retain']:
-                    save_filename = re.sub(r'[^\w\s]', '', data["prompt"][idx]).replace(' ', '_') + f'_{data["idx"][idx]}.png'
+                    save_filename =  f'{data["idx"][idx]}.png'
                 images_to_combine = []
                 for mode in mode_list: 
                     decoded_imgs[mode][idx].save(os.path.join(save_path, mode, save_filename))
@@ -426,23 +432,26 @@ def main():
                     img_combined.save(os.path.join(save_path, 'combine', save_filename.replace('.png', '.jpg')))
 
 class AdaDataset(Dataset):
-    def __init__(self, data_path, seed=None, guidance_scale=None, max_num=100000):
+    def __init__(self, data_path, seed=None, guidance_scale=None, max_num=100000, sexual_only=False):
         self.data_path = data_path
         self.data = pd.read_csv(data_path)
-        self.prompt_list = list(self.data['text'])[:max_num]
-        self.idx = list(self.data['id'])[:max_num]
-        self.seed = list(self.data['seed'])
-        self.concept = list(self.data['concept'])[:max_num]
+        if sexual_only:
+            self.data = self.data[self.data['categories'].str.contains('sexual')]
+        self.idx = list(self.data['idx'])
+        self.prompt_list = list(self.data['prompt'])
+        self.seed = list(self.data['sd_seed'])
         self.guidance_scale = [guidance_scale] * len(self.prompt_list)
-        self.type = list(self.data['type'])[:max_num]
+        # self.categories = list(self.data['categories'])[:max_num]
+        # self.type = list(self.data['type'])[:max_num]
 
     def __getitem__(self, idx):
         item = {
-            'prompt': self.prompt_list[idx],
             'idx': self.idx[idx],
+            'prompt': self.prompt_list[idx],
             'seed': self.seed[idx],
             'guidance': self.guidance_scale[idx],
-            'type': self.type[idx]
+            # 'category': self.categories[idx],
+            # 'type': self.type[idx]
         }
         return item
     

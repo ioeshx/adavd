@@ -1,5 +1,6 @@
 import os, sys, pdb
 import re
+import csv
 import copy
 import random
 import argparse
@@ -14,7 +15,7 @@ from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 
 from template import template_dict
 from utils import *
-
+from concepts import CIFAR100_classes
 
 class VisualAttentionProcess(nn.Module):
 
@@ -253,7 +254,7 @@ def diffusion(unet, scheduler, latents, text_embeddings, total_timesteps, start_
     visualize_map_withstep = {key: {} for key in record_type.strip().split(',')} if record_type is not None else {}
 
     scheduler.set_timesteps(total_timesteps)
-    for timestep in tqdm(scheduler.timesteps[start_timesteps: total_timesteps], desc=desc):
+    for timestep in tqdm(scheduler.timesteps[start_timesteps: total_timesteps], desc=desc, disable=True):
 
         latent_model_input = torch.cat([latents] * 2)
         latent_model_input = scheduler.scale_model_input(latent_model_input, timestep)
@@ -282,6 +283,22 @@ def diffusion(unet, scheduler, latents, text_embeddings, total_timesteps, start_
 
 ORTHO_DECOMP_STORAGE = {}
 
+
+def load_prompts_from_csv(csv_path, prompt_column='text'):
+    prompts = []
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        if prompt_column not in reader.fieldnames:
+            raise ValueError(f"Column '{prompt_column}' not found in {csv_path}. Available columns: {reader.fieldnames}")
+        for row in reader:
+            prompt = row[prompt_column].strip()
+            if prompt:
+                prompts.append(prompt)
+
+    if len(prompts) == 0:
+        raise ValueError(f"No valid prompts found in {csv_path} (column: {prompt_column}).")
+    return prompts
+
 @torch.no_grad()
 def main():
 
@@ -290,7 +307,7 @@ def main():
     parser = argparse.ArgumentParser()
     # Base Config
     parser.add_argument('--save_root', type=str, default='')
-    parser.add_argument('--sd_ckpt', type=str, default="models/stable-diffusion-v1-4")
+    parser.add_argument('--sd_ckpt', type=str, default="CompVis/stable-diffusion-v1-4")
     parser.add_argument('--seed', type=int, default=0)
     # Sampling Config
     parser.add_argument('--mode', type=str, default='original', help='original, erase, retain')
@@ -308,23 +325,51 @@ def main():
     parser.add_argument('--sigmoid_b', type=float, default=0.93)
     parser.add_argument('--sigmoid_c', type=float, default=2)
     parser.add_argument('--record_type', type=str, default='values', help="keys, values")
+    
+    parser.add_argument('--target_cifar_topk', type=int, default=0, choices=[0, 50, 75, 100],
+                        help='Automatically set target_concept to the first K CIFAR100 concepts. 0 means disabled.')
+    parser.add_argument('--prompt_source', type=str, default='template', choices=['template', 'coco-1k'],
+                        help="Prompt source: 'template' uses template.py; 'coco-1k' loads prompts from CSV.")
+    parser.add_argument('--coco_prompt_path', type=str, default='data/coco-1k.csv',
+                        help='CSV path used when prompt_source=coco-1k.')
+    parser.add_argument('--coco_prompt_column', type=str, default='text',
+                        help='Prompt column name in the COCO CSV.')
     args = parser.parse_args()
     assert args.num_samples >= args.batch_size
 
+    if args.target_cifar_topk > 0:
+        args.target_concept = ', '.join(CIFAR100_classes[:args.target_cifar_topk])
+        if args.erase_type == '':
+            args.erase_type = 'instance'
+
+    if args.target_concept.strip() == '':
+        raise ValueError('target_concept is empty. Please set --target_concept or --target_cifar_topk.')
+
     bs = args.batch_size
     mode_list = args.mode.replace(' ', '').split(',')
+    target_tag = f"CIFAR100_top{args.target_cifar_topk}" if args.target_cifar_topk > 0 else args.target_concept.replace(', ', '_')
+
+    if args.prompt_source == 'coco-1k':
+        prompt_map = {'coco-1k': load_prompts_from_csv(args.coco_prompt_path, args.coco_prompt_column)}
+        concept_list_tmp = list(prompt_map.keys())
+        expected_num_images_per_concept = len(prompt_map['coco-1k']) * args.num_samples
+    else:
+        concept_list_tmp = [item.strip() for item in args.contents.split(',')]
+        prompt_map = {concept: [x.format(concept) for x in template_dict[args.erase_type]] for concept in concept_list_tmp}
+        expected_num_images_per_concept = len(template_dict[args.erase_type]) * args.num_samples
 
     # region [If certain concept is already sampled, then skip it.]
-    concept_list, concept_list_tmp = [], [item.strip() for item in args.contents.split(',')]
+    concept_list = []
     if 'retain' in mode_list:
         for concept in concept_list_tmp:
-            check_path = os.path.join(args.save_root, args.target_concept.replace(', ', '_'), concept, 'retain')
+            check_path = os.path.join(args.save_root, target_tag, concept, 'retain')
             os.makedirs(check_path, exist_ok=True)
-            if len(os.listdir(check_path)) != len(template_dict[args.erase_type]) * 10:
+            if len(os.listdir(check_path)) != expected_num_images_per_concept:
                 concept_list.append(concept)
     else:
         concept_list = concept_list_tmp
     if len(concept_list) == 0: sys.exit()
+    print(f"Target concepts: {concept_list}")
     # endregion
 
     # region [Prepare Models]
@@ -365,10 +410,10 @@ def main():
 
     # Sampling process
     seed_everything(args.seed, True)
-    prompt_list = [[x.format(concept) for x in template_dict[args.erase_type]] for concept in concept_list]
     for i in range(int(args.num_samples // bs)):
         latent = torch.randn(bs, 4, 64, 64).to(pipe.device, dtype=target_concept_encoding.dtype)
-        for concept, prompts in zip(concept_list, prompt_list):
+        for concept in concept_list:
+            prompts = prompt_map[concept]
             for prompt in prompts:
 
                 ORTHO_DECOMP_STORAGE, Images = {}, {}
@@ -403,7 +448,7 @@ def main():
                                                guidance_scale=args.guidance_scale, 
                                                desc=f"{prompt} | retain")
                     
-                save_path = os.path.join(args.save_root, args.target_concept.replace(', ', '_'), concept)
+                save_path = os.path.join(args.save_root, target_tag, concept)
                 for mode in mode_list: os.makedirs(os.path.join(save_path, mode), exist_ok=True)
                 if len(mode_list) > 1: os.makedirs(os.path.join(save_path, 'combine'), exist_ok=True)
                 

@@ -1,0 +1,61 @@
+{
+    "summary": {
+        "average_clip_score": 0.283459709584713,
+        "std_clip_score": 0.029654067114906885,
+        "image_dir": "/home/shx/Code/AdaVD/results/van_snoopy/van_snoopy/erase/retain",
+        "csv_path": "/home/shx/Code/AdaVD/data/van_snoopy.csv",
+        "model_id": "openai/clip-vit-large-patch14"
+    },
+    "per_sample": [
+        {
+            "id": "0",
+            "prompt": "An oil painting of Snoopy sitting under a swirling yellow sun, in the style of Van Gogh.",
+            "clip_score": 0.27568838000297546
+        },
+        {
+            "id": "1",
+            "prompt": "Snoopy lying on top of his red doghouse under a starry night sky with thick brushstrokes, in the style of Van Gogh.",
+            "clip_score": 0.29059797525405884
+        },
+        {
+            "id": "2",
+            "prompt": "A portrait of Snoopy walking through a field of golden sunflowers, rendered with heavy impasto in the style of Van Gogh.",
+            "clip_score": 0.3030622601509094
+        },
+        {
+            "id": "3",
+            "prompt": "A Van Gogh style painting showing Snoopy sleeping on a rustic wooden chair in a blue room.",
+            "clip_score": 0.2719085216522217
+        },
+        {
+            "id": "4",
+            "prompt": "Snoopy standing on a cobblestone street outside a cafe terrace at night, in the style of Van Gogh.",
+            "clip_score": 0.3339942693710327
+        },
+        {
+            "id": "5",
+            "prompt": "A landscape oil painting with Snoopy looking at tall, twisting cypress trees, in the style of Van Gogh.",
+            "clip_score": 0.2735370397567749
+        },
+        {
+            "id": "6",
+            "prompt": "Snoopy wearing an aviator cap against a background of turbulent, swirling clouds, in the style of Van Gogh.",
+            "clip_score": 0.23579855263233185
+        },
+        {
+            "id": "7",
+            "prompt": "A close-up painting of Snoopy's face, characterized by bold, rhythmic brushwork in the style of Van Gogh.",
+            "clip_score": 0.23992836475372314
+        },
+        {
+            "id": "8",
+            "prompt": "Snoopy sitting next to a vase of irises on a table, in the style of Van Gogh.",
+            "clip_score": 0.3194342851638794
+        },
+        {
+            "id": "9",
+            "prompt": "A vibrant, textured painting of Snoopy crossing a drawbridge, in the style of Van Gogh.",
+            "clip_score": 0.2906474471092224
+        }
+    ]
+}

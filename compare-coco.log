@@ -1,0 +1,345 @@
+Target concepts: ['coco-1k']
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00,  8.84it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00,  8.63it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.10it/s]
+You have disabled the safety checker for <class 'diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline'> by passing `safety_checker=None`. Ensure that you abide to the conditions of the Stable Diffusion license and do not expose unfiltered results in services or applications open to the public. Both the diffusers team and Hugging Face strongly recommend to keep the safety filter enabled in all public facing circumstances, disabling it only for use-cases that involve analyzing network behavior or auditing its results. For more information, please have a look at https://github.com/huggingface/diffusers/pull/254 .
+Traceback (most recent call last):
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 548, in <module>
+    main()
+    ~~~~^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 461, in main
+    target_records = build_target_records_in_chunks(
+        unet=unet,
+    ...<5 lines>...
+        target_record_batch_size=args.target_record_batch_size,
+    )
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 329, in build_target_records_in_chunks
+    _, chunk_records = diffusion(
+                       ~~~~~~~~~^
+        unet=unet,
+        ^^^^^^^^^^
+    ...<8 lines>...
+        desc=f"Calculating target records [{start}:{end}]",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 263, in diffusion
+    noise_pred = unet(
+                 ~~~~^
+        latent_model_input,
+        ^^^^^^^^^^^^^^^^^^^
+        timestep,
+        ^^^^^^^^^
+        encoder_hidden_states=text_embeddings,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).sample
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/unets/unet_2d_condition.py", line 1153, in forward
+    sample, res_samples = downsample_block(
+                          ~~~~~~~~~~~~~~~~^
+        hidden_states=sample,
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **additional_residuals,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/unets/unet_2d_blocks.py", line 1270, in forward
+    hidden_states = attn(
+                    ~~~~^
+        hidden_states,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        return_dict=False,
+        ^^^^^^^^^^^^^^^^^^
+    )[0]
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/transformers/transformer_2d.py", line 427, in forward
+    hidden_states = block(
+        hidden_states,
+    ...<5 lines>...
+        class_labels=class_labels,
+    )
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention.py", line 1005, in forward
+    attn_output = self.attn1(
+        norm_hidden_states,
+    ...<2 lines>...
+        **cross_attention_kwargs,
+    )
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention_processor.py", line 605, in forward
+    return self.processor(
+           ~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        **cross_attention_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 36, in __call__
+    return attn.processor(attn, hidden_states, encoder_hidden_states, *args, **kwargs)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 186, in __call__
+    attention_probs = attn.get_attention_scores(query, key, attention_mask)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention_processor.py", line 685, in get_attention_scores
+    attention_scores = torch.baddbmm(
+        baddbmm_input,
+    ...<3 lines>...
+        alpha=self.scale,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB. GPU 0 has a total capacity of 23.69 GiB of which 1.67 GiB is free. Process 2618934 has 12.58 GiB memory in use. Including non-PyTorch memory, this process has 9.43 GiB memory in use. Of the allocated memory 9.02 GiB is allocated by PyTorch, and 107.56 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Target concepts: ['coco-1k']
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:00, 12.58it/s]Loading pipeline components...:  83%|████████▎ | 5/6 [00:00<00:00, 12.51it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 13.91it/s]
+You have disabled the safety checker for <class 'diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline'> by passing `safety_checker=None`. Ensure that you abide to the conditions of the Stable Diffusion license and do not expose unfiltered results in services or applications open to the public. Both the diffusers team and Hugging Face strongly recommend to keep the safety filter enabled in all public facing circumstances, disabling it only for use-cases that involve analyzing network behavior or auditing its results. For more information, please have a look at https://github.com/huggingface/diffusers/pull/254 .
+Traceback (most recent call last):
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 548, in <module>
+    main()
+    ~~~~^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 461, in main
+    target_records = build_target_records_in_chunks(
+        unet=unet,
+    ...<5 lines>...
+        target_record_batch_size=args.target_record_batch_size,
+    )
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 329, in build_target_records_in_chunks
+    _, chunk_records = diffusion(
+                       ~~~~~~~~~^
+        unet=unet,
+        ^^^^^^^^^^
+    ...<8 lines>...
+        desc=f"Calculating target records [{start}:{end}]",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 263, in diffusion
+    noise_pred = unet(
+                 ~~~~^
+        latent_model_input,
+        ^^^^^^^^^^^^^^^^^^^
+        timestep,
+        ^^^^^^^^^
+        encoder_hidden_states=text_embeddings,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).sample
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/unets/unet_2d_condition.py", line 1153, in forward
+    sample, res_samples = downsample_block(
+                          ~~~~~~~~~~~~~~~~^
+        hidden_states=sample,
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **additional_residuals,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/unets/unet_2d_blocks.py", line 1270, in forward
+    hidden_states = attn(
+                    ~~~~^
+        hidden_states,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        return_dict=False,
+        ^^^^^^^^^^^^^^^^^^
+    )[0]
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/transformers/transformer_2d.py", line 427, in forward
+    hidden_states = block(
+        hidden_states,
+    ...<5 lines>...
+        class_labels=class_labels,
+    )
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention.py", line 1005, in forward
+    attn_output = self.attn1(
+        norm_hidden_states,
+    ...<2 lines>...
+        **cross_attention_kwargs,
+    )
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention_processor.py", line 605, in forward
+    return self.processor(
+           ~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        **cross_attention_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 36, in __call__
+    return attn.processor(attn, hidden_states, encoder_hidden_states, *args, **kwargs)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 186, in __call__
+    attention_probs = attn.get_attention_scores(query, key, attention_mask)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention_processor.py", line 685, in get_attention_scores
+    attention_scores = torch.baddbmm(
+        baddbmm_input,
+    ...<3 lines>...
+        alpha=self.scale,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB. GPU 0 has a total capacity of 23.69 GiB of which 1.67 GiB is free. Process 2618934 has 12.58 GiB memory in use. Including non-PyTorch memory, this process has 9.43 GiB memory in use. Of the allocated memory 9.01 GiB is allocated by PyTorch, and 111.20 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Target concepts: ['coco-1k']
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:00<00:00, 10.91it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.80it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:00<00:00, 14.05it/s]
+You have disabled the safety checker for <class 'diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline'> by passing `safety_checker=None`. Ensure that you abide to the conditions of the Stable Diffusion license and do not expose unfiltered results in services or applications open to the public. Both the diffusers team and Hugging Face strongly recommend to keep the safety filter enabled in all public facing circumstances, disabling it only for use-cases that involve analyzing network behavior or auditing its results. For more information, please have a look at https://github.com/huggingface/diffusers/pull/254 .
+Traceback (most recent call last):
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 548, in <module>
+    main()
+    ~~~~^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 461, in main
+    target_records = build_target_records_in_chunks(
+        unet=unet,
+    ...<5 lines>...
+        target_record_batch_size=args.target_record_batch_size,
+    )
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 329, in build_target_records_in_chunks
+    _, chunk_records = diffusion(
+                       ~~~~~~~~~^
+        unet=unet,
+        ^^^^^^^^^^
+    ...<8 lines>...
+        desc=f"Calculating target records [{start}:{end}]",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 263, in diffusion
+    noise_pred = unet(
+                 ~~~~^
+        latent_model_input,
+        ^^^^^^^^^^^^^^^^^^^
+        timestep,
+        ^^^^^^^^^
+        encoder_hidden_states=text_embeddings,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ).sample
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/unets/unet_2d_condition.py", line 1153, in forward
+    sample, res_samples = downsample_block(
+                          ~~~~~~~~~~~~~~~~^
+        hidden_states=sample,
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **additional_residuals,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/unets/unet_2d_blocks.py", line 1270, in forward
+    hidden_states = attn(
+                    ~~~~^
+        hidden_states,
+        ^^^^^^^^^^^^^^
+    ...<4 lines>...
+        return_dict=False,
+        ^^^^^^^^^^^^^^^^^^
+    )[0]
+    ^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/transformers/transformer_2d.py", line 427, in forward
+    hidden_states = block(
+        hidden_states,
+    ...<5 lines>...
+        class_labels=class_labels,
+    )
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention.py", line 1005, in forward
+    attn_output = self.attn1(
+        norm_hidden_states,
+    ...<2 lines>...
+        **cross_attention_kwargs,
+    )
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention_processor.py", line 605, in forward
+    return self.processor(
+           ~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        **cross_attention_kwargs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 36, in __call__
+    return attn.processor(attn, hidden_states, encoder_hidden_states, *args, **kwargs)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shx/code/AdaVD/src/main-coco.py", line 186, in __call__
+    attention_probs = attn.get_attention_scores(query, key, attention_mask)
+  File "/software/anaconda3/envs/shx/lib/python3.13/site-packages/diffusers/models/attention_processor.py", line 685, in get_attention_scores
+    attention_scores = torch.baddbmm(
+        baddbmm_input,
+    ...<3 lines>...
+        alpha=self.scale,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB. GPU 0 has a total capacity of 23.69 GiB of which 1.67 GiB is free. Process 2618934 has 12.58 GiB memory in use. Including non-PyTorch memory, this process has 9.43 GiB memory in use. Of the allocated memory 9.02 GiB is allocated by PyTorch, and 103.33 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
