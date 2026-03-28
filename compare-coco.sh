@@ -1,9 +1,9 @@
 export HF_ENDPOINT=https://hf-mirror.com
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=0
 
 python src/main-coco.py \
   --save_root results/coco1k \
-  --mode "original,erase,retain" \
+  --mode "original,erase" \
   --guidance_scale 7.5 \
   --total_timesteps 20 \
   --num_samples 1 \
@@ -18,7 +18,7 @@ python src/main-coco.py \
 
 python src/main-coco.py  \
   --save_root results/coco1k \
-  --mode "original,erase,retain" \
+  --mode "original,erase" \
   --guidance_scale 7.5 \
   --total_timesteps 20 \
   --num_samples 1 \
@@ -32,7 +32,7 @@ python src/main-coco.py  \
 
 python src/main-coco.py  \
   --save_root results/coco1k \
-  --mode "original,erase,retain" \
+  --mode "original,erase" \
   --guidance_scale 7.5 \
   --total_timesteps 20 \
   --num_samples 1 \

@@ -8,3 +8,7 @@ safetensors
 torch
 tqdm
 transformers
+accelerate
+lpips
+
+torch_fidelity
